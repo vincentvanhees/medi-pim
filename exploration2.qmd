@@ -116,7 +116,7 @@ ggplot(D24, aes(x=hour_in_day)) +
 ```
 
 
-## Explore lagged effects - low PIM => high PIM
+## Explore change points - low PIM => high PIM
 
 In this section I am putting most code in functions to ease repeating the
 same analysis for high PIM => low PIM, low MEDI => high MEDI, high MEDI => low MEDI.
@@ -266,7 +266,7 @@ plot_changepoint_ts = function(output) {
 plot_changepoint_ts(output)
 ```
 
-## Explore lagged effects - high PIM => low PIM
+## Explore change points - high PIM => low PIM
 
 Now to the same as above, but from a MEDI perspective
 
@@ -335,7 +335,7 @@ plot_changepoint_ts(output)
 ```
 
 
-## Explore lagged effects - low MEDI => high MEDI
+## Explore change points - low MEDI => high MEDI
 
 Now to the same as above, but from a MEDI perspective
 
@@ -403,7 +403,7 @@ output = create_tibble(D, half_window_size, epochsize)
 plot_changepoint_ts(output)
 ```
 
-## Explore lagged effects - high MEDI => low MEDI
+## Explore change points - high MEDI => low MEDI
 
 Now to the same as above, but from a MEDI perspective
 
@@ -478,6 +478,6 @@ plot_changepoint_ts(output)
 - Smoothed 24 hour averaged MEDI and PIM shows that they sometimes be correlated and sometimes not, with large variation between individuals.
 
 
-### Lagged effects
+### Change points
 
 - My subjective interpretation is that change in MEDI coincides with change in PIM, but change in PIM does not coincide in change in MEDI. It is tempting to then conclude that light exposure change causes the change in activity, while change in activity does not cause change in light exposure. However, to me it seems that often activity already starts to change before the light starts to change. Therefore, the cause of changes may (also) be external.
