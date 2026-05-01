@@ -262,7 +262,6 @@ ggplot(Dtmp, aes(x = delta_MEDI, y = delta_PIM)) +
       scale_y_continuous(labels = NULL, breaks = NULL)
 ```
 
-
 ## Reflections
 
 - No clear associations between PIM and MEDI or change in PIM and change in MEDI.
@@ -273,8 +272,3 @@ ggplot(Dtmp, aes(x = delta_MEDI, y = delta_PIM)) +
   - Only looked at isolated effect of each factor, not at the combined effect.
   - Limited attempt to clean data
   - Only focused on epoch level comparisons
-
-
-
-
-
