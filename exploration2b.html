@@ -103,7 +103,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="introduction" class="level2">
 <h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
-<p>Same as exploration 2 but now with MEDI from eyel-level and PIM from wrist</p>
+<p>Same as exploration 2 but now with MEDI from eyel-level and PIM from wrist, and in UCR instead of TUM as for TUM there is only one Id for which we have matching MEDI glasses and PIM wrist, while UCR has 6.</p>
 </section>
 <section id="prepare-data" class="level2">
 <h2 class="anchored" data-anchor-id="prepare-data">Prepare data</h2>
@@ -141,7 +141,7 @@ The following object is masked from 'package:dplyr':
 <p>Load Melidos Data from all sites and store locally.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (modality <span class="cf">in</span> <span class="fu">c</span>(<span class="st">"light_wrist"</span>, <span class="st">"light_glasses"</span>)) {</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  site <span class="ot">=</span> <span class="st">"TUM"</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  site <span class="ot">=</span> <span class="st">"UCR"</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  outputfile <span class="ot">=</span> <span class="fu">paste0</span>(modality, <span class="st">"_"</span>, site, <span class="st">".RData"</span>)</span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(outputfile)) {</span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Only download data when not downloaded before</span></span>
@@ -158,17 +158,13 @@ The following object is masked from 'package:dplyr':
 <span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="co"># combine into one data object with MEDI from glasses and PIM from wrist </span></span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>sites_to_remove <span class="ot">=</span> <span class="cn">NULL</span></span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>data_light_glasses <span class="ot">=</span> <span class="fu">merge</span>(data_light_glasses,</span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>                           data_light_wrist,</span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>                           <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"Datetime"</span>, <span class="st">"Id"</span>),</span>
-<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>                           <span class="at">suffixes =</span> <span class="fu">c</span>(<span class="st">".glass"</span>, <span class="st">".wrist"</span>))</span>
-<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>data_light_glasses <span class="ot">&lt;-</span> data_light_glasses <span class="sc">|&gt;</span></span>
-<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(Id, Datetime, MEDI.glass, PIM.wrist) <span class="sc">|&gt;</span></span>
-<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">MEDI =</span> MEDI.glass, <span class="at">PIM =</span> PIM.wrist)</span>
-<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>data <span class="ot">=</span> data_light_glasses</span>
-<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(data_light_glasses, data_light_wrist)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>data <span class="ot">=</span> <span class="fu">merge</span>(data_light_glasses,</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>                           data_light_wrist,</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>                           <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"Datetime"</span>, <span class="st">"Id"</span>),</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>                           <span class="at">suffixes =</span> <span class="fu">c</span>(<span class="st">".glass"</span>, <span class="st">".wrist"</span>))</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> data <span class="sc">|&gt;</span></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(Id, Datetime, MEDI.glass, PIM.wrist) <span class="sc">|&gt;</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">MEDI =</span> MEDI.glass, <span class="at">PIM =</span> PIM.wrist)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="inspect-sample-sizes" class="level3">
@@ -178,7 +174,7 @@ The following object is masked from 'package:dplyr':
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>N <span class="ot">=</span> <span class="fu">length</span>(<span class="fu">unique</span>(data<span class="sc">$</span>Id))</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">paste0</span>(<span class="st">"N "</span>, site, <span class="st">": "</span>, N, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>N TUM: 1</code></pre>
+<pre><code>N UCR: 6</code></pre>
 </div>
 </div>
 </section>
@@ -188,10 +184,10 @@ The following object is masked from 'package:dplyr':
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>D <span class="ot">=</span> data <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">select</span>(Id, Datetime, MEDI, PIM)</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>dplyr<span class="sc">::</span><span class="fu">glimpse</span>(D)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Rows: 69,120
+<pre><code>Rows: 414,720
 Columns: 4
-$ Id       &lt;chr&gt; "TUM_S003", "TUM_S003", "TUM_S003", "TUM_S003", "TUM_S003", "…
-$ Datetime &lt;dttm&gt; 2024-06-03 00:00:10, 2024-06-03 00:00:20, 2024-06-03 00:00:3…
+$ Id       &lt;chr&gt; "UCR_S001", "UCR_S002", "UCR_S003", "UCR_S001", "UCR_S002", "…
+$ Datetime &lt;dttm&gt; 2025-06-16 00:00:10, 2025-06-16 00:00:10, 2025-06-16 00:00:1…
 $ MEDI     &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…
 $ PIM      &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N…</code></pre>
 </div>
@@ -205,12 +201,12 @@ $ PIM      &lt;dbl&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, N
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>dplyr<span class="sc">::</span><span class="fu">glimpse</span>(D)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Rows: 57,906
+<pre><code>Rows: 353,066
 Columns: 4
-$ Id       &lt;chr&gt; "TUM_S003", "TUM_S003", "TUM_S003", "TUM_S003", "TUM_S003", "…
-$ Datetime &lt;dttm&gt; 2024-06-03 16:31:10, 2024-06-03 16:31:20, 2024-06-03 16:31:3…
-$ MEDI     &lt;dbl&gt; 76.91, 76.93, 74.59, 80.32, 162.27, 126.56, 56.27, 58.18, 62.…
-$ PIM      &lt;dbl&gt; 0, 0, 0, 13, 0, 0, 0, 7, 0, 0, 0, 0, 0, 3, 0, 0, 1261, 2138, …</code></pre>
+$ Id       &lt;chr&gt; "UCR_S001", "UCR_S002", "UCR_S003", "UCR_S001", "UCR_S002", "…
+$ Datetime &lt;dttm&gt; 2025-06-16 12:30:00, 2025-06-16 12:30:00, 2025-06-16 12:30:0…
+$ MEDI     &lt;dbl&gt; 185.02, 119.79, 133.97, 179.77, 125.14, 116.18, 138.80, 108.3…
+$ PIM      &lt;dbl&gt; 0, 87, 995, 0, 118, 1312, 0, 100, 323, 285, 400, 623, 614, 18…</code></pre>
 </div>
 </div>
 </section>

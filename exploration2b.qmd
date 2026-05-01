@@ -6,7 +6,9 @@ editor: visual
 
 ## Introduction
 
-Same as exploration 2 but now with MEDI from eyel-level and PIM from wrist
+Same as exploration 2 but now with MEDI from eyel-level and PIM from wrist,
+and in UCR instead of TUM as for TUM there is only one Id for which we have matching
+MEDI glasses and PIM wrist, while UCR has 6.
 
 ## Prepare data
 
@@ -25,7 +27,7 @@ Load Melidos Data from all sites and store locally.
 
 ```{r}
 for (modality in c("light_wrist", "light_glasses")) {
-  site = "TUM"
+  site = "UCR"
   outputfile = paste0(modality, "_", site, ".RData")
   if (!file.exists(outputfile)) {
     # Only download data when not downloaded before
@@ -42,17 +44,13 @@ for (modality in c("light_wrist", "light_glasses")) {
 }
 
 # combine into one data object with MEDI from glasses and PIM from wrist 
-sites_to_remove = NULL
-data_light_glasses = merge(data_light_glasses,
+data = merge(data_light_glasses,
                            data_light_wrist,
                            by = c("Datetime", "Id"),
                            suffixes = c(".glass", ".wrist"))
-data_light_glasses <- data_light_glasses |>
+data <- data |>
   dplyr::select(Id, Datetime, MEDI.glass, PIM.wrist) |>
   rename(MEDI = MEDI.glass, PIM = PIM.wrist)
-
-data = data_light_glasses
-rm(data_light_glasses, data_light_wrist)
 ```
 
 ### Inspect sample sizes
