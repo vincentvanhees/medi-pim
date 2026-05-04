@@ -89,7 +89,7 @@ scaleFactor <- max(D24$PIM) / max(D24$MEDI)
 ggplot(D24, aes(x=hour_in_day)) +
   geom_line(aes(y=PIM), col="blue") +
   geom_line(aes(y=MEDI * scaleFactor), col="red") +
-  scale_y_continuous(name="MEDI", sec.axis=sec_axis(~./scaleFactor, name="PIM")) +
+  scale_y_continuous(name="PIM", sec.axis=sec_axis(~./scaleFactor, name="MEDI")) +
   theme(
     axis.title.y.left=element_text(color="blue"),
     axis.text.y.left=element_text(color="blue"),
@@ -98,6 +98,7 @@ ggplot(D24, aes(x=hour_in_day)) +
   ) +
   facet_wrap(~Id)
 ```
+
 ### With smoothing?
 
 ```{r}
@@ -105,7 +106,7 @@ scaleFactor <- max(D24$PIM) / max(D24$MEDI)
 ggplot(D24, aes(x=hour_in_day)) +
   geom_smooth(aes(y=PIM), method="gam", col="blue") +
   geom_smooth(aes(y=MEDI * scaleFactor), method="gam", col="red") +
-  scale_y_continuous(name="MEDI", sec.axis=sec_axis(~./scaleFactor, name="PIM")) +
+  scale_y_continuous(name="PIM", sec.axis=sec_axis(~./scaleFactor, name="MEDI")) +
   theme(
     axis.title.y.left=element_text(color="blue"),
     axis.text.y.left=element_text(color="blue"),
@@ -115,11 +116,9 @@ ggplot(D24, aes(x=hour_in_day)) +
   facet_wrap(~Id)
 ```
 
+## Explore change points - low PIM =\> high PIM
 
-## Explore change points - low PIM => high PIM
-
-In this section I am putting most code in functions to ease repeating the
-same analysis for high PIM => low PIM, low MEDI => high MEDI, high MEDI => low MEDI.
+In this section I am putting most code in functions to ease repeating the same analysis for high PIM =\> low PIM, low MEDI =\> high MEDI, high MEDI =\> low MEDI.
 
 ### Go back to original data object
 
@@ -247,12 +246,12 @@ output = create_tibble(D, half_window_size, epochsize)
 ### Plot
 
 ```{r}
-plot_changepoint_ts = function(output) {
+plot_changepoint_ts = function(output, title = "") {
   scaleFactor <- max(output$PIM) / max(output$MEDI)
   ggplot(output, aes(x = time, group = changepoint)) +
     geom_line(aes(y = PIM), col = "blue") +
     geom_line(aes(y = MEDI * scaleFactor), col = "red") +
-    scale_y_continuous(name = "MEDI", sec.axis = sec_axis(~./scaleFactor, name = "PIM")) +
+    scale_y_continuous(name = "PIM", sec.axis = sec_axis(~./scaleFactor, name = "MEDI")) +
     theme(
       axis.title.y.left = element_text(color = "blue"),
       axis.text.y.left = element_text(color = "blue"),
@@ -261,12 +260,12 @@ plot_changepoint_ts = function(output) {
     ) +
     geom_vline(xintercept = 0, linetype = "dashed") +
     labs(x = "time (minutes)") + 
-    facet_wrap(~Id)
+    facet_wrap(~Id) + ggtitle(title)
 }
-plot_changepoint_ts(output)
+plot_changepoint_ts(output, "low PIM => high PIM")
 ```
 
-## Explore change points - high PIM => low PIM
+## Explore change points - high PIM =\> low PIM
 
 Now to the same as above, but from a MEDI perspective
 
@@ -331,11 +330,10 @@ output = create_tibble(D, half_window_size, epochsize)
 ### Plot
 
 ```{r}
-plot_changepoint_ts(output)
+plot_changepoint_ts(output, "high PIM => low PIM")
 ```
 
-
-## Explore change points - low MEDI => high MEDI
+## Explore change points - low MEDI =\> high MEDI
 
 Now to the same as above, but from a MEDI perspective
 
@@ -400,10 +398,10 @@ output = create_tibble(D, half_window_size, epochsize)
 ### Plot
 
 ```{r}
-plot_changepoint_ts(output)
+plot_changepoint_ts(output, "low MEDI => high MEDI")
 ```
 
-## Explore change points - high MEDI => low MEDI
+## Explore change points - high MEDI =\> low MEDI
 
 Now to the same as above, but from a MEDI perspective
 
@@ -466,9 +464,8 @@ output = create_tibble(D, half_window_size, epochsize)
 ### Plot
 
 ```{r}
-plot_changepoint_ts(output)
+plot_changepoint_ts(output, "high MEDI => low MEDI")
 ```
-
 
 ## Reflections
 
@@ -477,9 +474,6 @@ plot_changepoint_ts(output)
 - Non-smoothed 24 hour averaged MEDI and PIM shows that light exposure and activity tend to happen during the same hours of the day, but do not reveal clear general patterns.
 - Smoothed 24 hour averaged MEDI and PIM shows that they sometimes be correlated and sometimes not, with large variation between individuals.
 
-
 ### Change points
 
 - My subjective interpretation is that change in MEDI coincides with change in PIM, but change in PIM does not coincide in change in MEDI. It is tempting to then conclude that light exposure change causes the change in activity, while change in activity does not cause change in light exposure. However, to me it seems that often activity already starts to change before the light starts to change. Therefore, the cause of changes may (also) be external.
-
-Correction: This should be the other way around, as I misread the colours. Either way, I think there are subtle hints in the data at one directional assocations... maybe causality is too strong word.

@@ -238,7 +238,7 @@ $ PIM      &lt;dbl&gt; 0, 87, 995, 0, 118, 1312, 0, 100, 323, 285, 400, 623, 614
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(D24, <span class="fu">aes</span>(<span class="at">x=</span>hour_in_day)) <span class="sc">+</span></span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y=</span>PIM), <span class="at">col=</span><span class="st">"blue"</span>) <span class="sc">+</span></span>
 <span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y=</span>MEDI <span class="sc">*</span> scaleFactor), <span class="at">col=</span><span class="st">"red"</span>) <span class="sc">+</span></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">name=</span><span class="st">"MEDI"</span>, <span class="at">sec.axis=</span><span class="fu">sec_axis</span>(<span class="sc">~</span>.<span class="sc">/</span>scaleFactor, <span class="at">name=</span><span class="st">"PIM"</span>)) <span class="sc">+</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">name=</span><span class="st">"PIM"</span>, <span class="at">sec.axis=</span><span class="fu">sec_axis</span>(<span class="sc">~</span>.<span class="sc">/</span>scaleFactor, <span class="at">name=</span><span class="st">"MEDI"</span>)) <span class="sc">+</span></span>
 <span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
 <span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.title.y.left=</span><span class="fu">element_text</span>(<span class="at">color=</span><span class="st">"blue"</span>),</span>
 <span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.y.left=</span><span class="fu">element_text</span>(<span class="at">color=</span><span class="st">"blue"</span>),</span>
@@ -261,7 +261,7 @@ $ PIM      &lt;dbl&gt; 0, 87, 995, 0, 118, 1312, 0, 100, 323, 285, 400, 623, 614
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(D24, <span class="fu">aes</span>(<span class="at">x=</span>hour_in_day)) <span class="sc">+</span></span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="fu">aes</span>(<span class="at">y=</span>PIM), <span class="at">method=</span><span class="st">"gam"</span>, <span class="at">col=</span><span class="st">"blue"</span>) <span class="sc">+</span></span>
 <span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="fu">aes</span>(<span class="at">y=</span>MEDI <span class="sc">*</span> scaleFactor), <span class="at">method=</span><span class="st">"gam"</span>, <span class="at">col=</span><span class="st">"red"</span>) <span class="sc">+</span></span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">name=</span><span class="st">"MEDI"</span>, <span class="at">sec.axis=</span><span class="fu">sec_axis</span>(<span class="sc">~</span>.<span class="sc">/</span>scaleFactor, <span class="at">name=</span><span class="st">"PIM"</span>)) <span class="sc">+</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">name=</span><span class="st">"PIM"</span>, <span class="at">sec.axis=</span><span class="fu">sec_axis</span>(<span class="sc">~</span>.<span class="sc">/</span>scaleFactor, <span class="at">name=</span><span class="st">"MEDI"</span>)) <span class="sc">+</span></span>
 <span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
 <span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.title.y.left=</span><span class="fu">element_text</span>(<span class="at">color=</span><span class="st">"blue"</span>),</span>
 <span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.y.left=</span><span class="fu">element_text</span>(<span class="at">color=</span><span class="st">"blue"</span>),</span>
@@ -409,12 +409,12 @@ $ PIM      &lt;dbl&gt; 0, 87, 995, 0, 118, 1312, 0, 100, 323, 285, 400, 623, 614
 <section id="plot" class="level3">
 <h3 class="anchored" data-anchor-id="plot">Plot</h3>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>plot_changepoint_ts <span class="ot">=</span> <span class="cf">function</span>(output) {</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>plot_changepoint_ts <span class="ot">=</span> <span class="cf">function</span>(output, <span class="at">title =</span> <span class="st">""</span>) {</span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  scaleFactor <span class="ot">&lt;-</span> <span class="fu">max</span>(output<span class="sc">$</span>PIM) <span class="sc">/</span> <span class="fu">max</span>(output<span class="sc">$</span>MEDI)</span>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(output, <span class="fu">aes</span>(<span class="at">x =</span> time, <span class="at">group =</span> changepoint)) <span class="sc">+</span></span>
 <span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> PIM), <span class="at">col =</span> <span class="st">"blue"</span>) <span class="sc">+</span></span>
 <span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> MEDI <span class="sc">*</span> scaleFactor), <span class="at">col =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_y_continuous</span>(<span class="at">name =</span> <span class="st">"MEDI"</span>, <span class="at">sec.axis =</span> <span class="fu">sec_axis</span>(<span class="sc">~</span>.<span class="sc">/</span>scaleFactor, <span class="at">name =</span> <span class="st">"PIM"</span>)) <span class="sc">+</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">scale_y_continuous</span>(<span class="at">name =</span> <span class="st">"PIM"</span>, <span class="at">sec.axis =</span> <span class="fu">sec_axis</span>(<span class="sc">~</span>.<span class="sc">/</span>scaleFactor, <span class="at">name =</span> <span class="st">"MEDI"</span>)) <span class="sc">+</span></span>
 <span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(</span>
 <span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">axis.title.y.left =</span> <span class="fu">element_text</span>(<span class="at">color =</span> <span class="st">"blue"</span>),</span>
 <span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>      <span class="at">axis.text.y.left =</span> <span class="fu">element_text</span>(<span class="at">color =</span> <span class="st">"blue"</span>),</span>
@@ -423,9 +423,10 @@ $ PIM      &lt;dbl&gt; 0, 87, 995, 0, 118, 1312, 0, 100, 323, 285, 400, 623, 614
 <span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
 <span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span></span>
 <span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"time (minutes)"</span>) <span class="sc">+</span> </span>
-<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">facet_wrap</span>(<span class="sc">~</span>Id)</span>
-<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_changepoint_ts</span>(output)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">facet_wrap</span>(<span class="sc">~</span>Id) <span class="sc">+</span> <span class="fu">ggtitle</span>(title)</span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_changepoint_ts</span>(output, <span class="st">"low PIM =&gt; high PIM"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -498,7 +499,7 @@ $ PIM      &lt;dbl&gt; 0, 87, 995, 0, 118, 1312, 0, 100, 323, 285, 400, 623, 614
 <section id="plot-1" class="level3">
 <h3 class="anchored" data-anchor-id="plot-1">Plot</h3>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_changepoint_ts</span>(output)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_changepoint_ts</span>(output, <span class="st">"high PIM =&gt; low PIM"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -571,7 +572,7 @@ $ PIM      &lt;dbl&gt; 0, 87, 995, 0, 118, 1312, 0, 100, 323, 285, 400, 623, 614
 <section id="plot-2" class="level3">
 <h3 class="anchored" data-anchor-id="plot-2">Plot</h3>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_changepoint_ts</span>(output)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_changepoint_ts</span>(output, <span class="st">"low MEDI =&gt; high MEDI"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -643,7 +644,7 @@ $ PIM      &lt;dbl&gt; 0, 87, 995, 0, 118, 1312, 0, 100, 323, 285, 400, 623, 614
 <section id="plot-3" class="level3">
 <h3 class="anchored" data-anchor-id="plot-3">Plot</h3>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_changepoint_ts</span>(output)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_changepoint_ts</span>(output, <span class="st">"high MEDI =&gt; low MEDI"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -658,6 +659,7 @@ $ PIM      &lt;dbl&gt; 0, 87, 995, 0, 118, 1312, 0, 100, 323, 285, 400, 623, 614
 <h2 class="anchored" data-anchor-id="reflections">Reflections</h2>
 <section id="hour-averaged-data" class="level3">
 <h3 class="anchored" data-anchor-id="hour-averaged-data">24 hour averaged data</h3>
+<p>Same as for exploration 2:</p>
 <ul>
 <li>Non-smoothed 24 hour averaged MEDI and PIM shows that light exposure and activity tend to happen during the same hours of the day, but do not reveal clear general patterns.</li>
 <li>Smoothed 24 hour averaged MEDI and PIM shows that they sometimes be correlated and sometimes not, with large variation between individuals.</li>
@@ -665,10 +667,7 @@ $ PIM      &lt;dbl&gt; 0, 87, 995, 0, 118, 1312, 0, 100, 323, 285, 400, 623, 614
 </section>
 <section id="change-points" class="level3">
 <h3 class="anchored" data-anchor-id="change-points">Change points</h3>
-<ul>
-<li>My subjective interpretation is that change in MEDI coincides with change in PIM, but change in PIM does not coincide in change in MEDI. It is tempting to then conclude that light exposure change causes the change in activity, while change in activity does not cause change in light exposure. However, to me it seems that often activity already starts to change before the light starts to change. Therefore, the cause of changes may (also) be external.</li>
-</ul>
-<p>Correction: This should be the other way around, as I misread the colours. Either way, I think there are subtle hints in the data at one directional assocations… maybe causality is too strong word.</p>
+<p>Partially the same as for exploration 2 where we observate that transtions from low -&gt; high or high -&gt; low are associated. However, for some visualisation it looks as if the relation is now reversed: PIM going down being associated with MEDI going up. Better visualisations are needed to gain more insight.</p>
 </section>
 </section>
 
