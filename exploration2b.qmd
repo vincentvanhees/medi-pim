@@ -27,7 +27,7 @@ Load Melidos Data from all sites and store locally.
 
 ```{r}
 for (modality in c("light_wrist", "light_glasses")) {
-  site = "UCR"
+  site = "TUM" #"UCR"
   outputfile = paste0(modality, "_", site, ".RData")
   if (!file.exists(outputfile)) {
     # Only download data when not downloaded before
@@ -44,13 +44,20 @@ for (modality in c("light_wrist", "light_glasses")) {
 }
 
 # combine into one data object with MEDI from glasses and PIM from wrist 
-data = merge(data_light_glasses,
-                           data_light_wrist,
-                           by = c("Datetime", "Id"),
-                           suffixes = c(".glass", ".wrist"))
+
+data = data_light_glasses |> LightLogR::data2reference(data_light_wrist, PIM, Reference.column = PIM_wrist)
+
 data <- data |>
-  dplyr::select(Id, Datetime, MEDI.glass, PIM.wrist) |>
-  rename(MEDI = MEDI.glass, PIM = PIM.wrist)
+  dplyr::select(Id, Datetime, MEDI, PIM)
+
+# Old code that assumed that epochs were alligned to the minute
+# data = merge(data_light_glasses,
+#                            data_light_wrist,
+#                            by = c("Datetime", "Id"),
+#                            suffixes = c(".glass", ".wrist"))
+# data <- data |>
+#   dplyr::select(Id, Datetime, MEDI.glass, PIM.wrist) |>
+#   rename(MEDI = MEDI.glass, PIM = PIM.wrist)
 ```
 
 ### Inspect sample sizes
