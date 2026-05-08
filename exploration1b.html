@@ -467,8 +467,7 @@ $ name     &lt;chr&gt; "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1
 <span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(x[<span class="dv">1</span>])</span>
 <span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>  }</span>
 <span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>Dtmp <span class="ot">&lt;-</span> <span class="fu">as_tibble</span>(<span class="fu">aggregate</span>(D, <span class="at">by =</span> <span class="fu">list</span>(D<span class="sc">$</span>rounded_time_minutes, D<span class="sc">$</span>Id), <span class="at">FUN =</span> myagg)) <span class="sc">|&gt;</span></span>
-<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(Group<span class="fl">.1</span>, Group<span class="fl">.2</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>Dtmp <span class="ot">&lt;-</span> <span class="fu">as_tibble</span>(<span class="fu">aggregate</span>(D, <span class="at">by =</span> <span class="fu">list</span>(D<span class="sc">$</span>rounded_time_minutes, D<span class="sc">$</span>Id), <span class="at">FUN =</span> myagg)) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(Group<span class="fl">.1</span>, Group<span class="fl">.2</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(Dtmp, <span class="fu">aes</span>(<span class="at">x =</span> delta_MEDI, <span class="at">y =</span> delta_PIM)) <span class="sc">+</span></span>
@@ -485,6 +484,40 @@ $ name     &lt;chr&gt; "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1
 <div>
 <figure class="figure">
 <p><img src="exploration1b_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="downsample-pim-and-medi-to-2-minute-resolution" class="level3">
+<h3 class="anchored" data-anchor-id="downsample-pim-and-medi-to-2-minute-resolution">Downsample PIM and MEDI to 2 minute resolution?</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>D<span class="sc">$</span>rounded_time_minutes <span class="ot">=</span> <span class="fu">round</span>(<span class="fu">as.numeric</span>(D<span class="sc">$</span>Datetime) <span class="sc">/</span> <span class="dv">120</span>) <span class="sc">*</span> <span class="dv">120</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>myagg <span class="ot">=</span> <span class="cf">function</span>(x) {</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">inherits</span>(x, <span class="st">"numeric"</span>)) {</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="fu">mean</span>(x))</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(x[<span class="dv">1</span>])</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>Dtmp <span class="ot">&lt;-</span> <span class="fu">as_tibble</span>(<span class="fu">aggregate</span>(D, <span class="at">by =</span> <span class="fu">list</span>(D<span class="sc">$</span>rounded_time_minutes, D<span class="sc">$</span>Id), <span class="at">FUN =</span> myagg)) <span class="sc">|&gt;</span> <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(Group<span class="fl">.1</span>, Group<span class="fl">.2</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(Dtmp, <span class="fu">aes</span>(<span class="at">x =</span> delta_MEDI, <span class="at">y =</span> delta_PIM)) <span class="sc">+</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_bin2d</span>(<span class="at">binwidth =</span> <span class="fu">c</span>(<span class="dv">1000</span>, <span class="dv">500</span>), <span class="fu">aes</span>(<span class="at">fill =</span> <span class="fu">after_stat</span>(count)),</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">alpha =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>      <span class="fu">scale_fill_gradient</span>(<span class="at">name =</span> <span class="st">"Density"</span>, <span class="at">low =</span> <span class="st">"lightblue"</span>, <span class="at">high =</span> <span class="st">"darkblue"</span>) <span class="sc">+</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>      <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Density of change in MEDI vs change in PIM level"</span>,</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>           <span class="at">x =</span> <span class="st">"Change in in MEDI"</span>, <span class="at">y =</span> <span class="st">"Change in PIM level"</span>) <span class="sc">+</span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>      <span class="fu">facet_wrap</span>(<span class="sc">~</span>site) <span class="sc">+</span></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>      <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>      <span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> <span class="cn">NULL</span>, <span class="at">breaks =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>      <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> <span class="cn">NULL</span>, <span class="at">breaks =</span> <span class="cn">NULL</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="exploration1b_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
