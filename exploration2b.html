@@ -444,6 +444,23 @@ $ PIM      &lt;dbl&gt; 48, 25, 3, 129, 618, 1729, 822, 369, 272, 165, 216, 50, 1
 </div>
 </div>
 </section>
+<section id="plot-only-average-line-per-id" class="level3">
+<h3 class="anchored" data-anchor-id="plot-only-average-line-per-id">Plot only average line per Id</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>output2 <span class="ot">=</span> <span class="fu">aggregate</span>(output[, <span class="fu">c</span>(<span class="st">"time"</span>, <span class="st">"MEDI"</span>, <span class="st">"PIM"</span>, <span class="st">"changepoint"</span>)],</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>                    <span class="at">by =</span> <span class="fu">list</span>(output<span class="sc">$</span>time, output<span class="sc">$</span>Id), <span class="at">FUN =</span> mean)</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>output2 <span class="ot">=</span> output2[, <span class="sc">-</span><span class="fu">which</span>(<span class="fu">names</span>(output2) <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Group.1"</span>))]</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(output2)[<span class="dv">1</span>] <span class="ot">=</span> <span class="st">"Id"</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_changepoint_ts</span>(output2, <span class="st">"low PIM =&gt; high PIM"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="exploration2b_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
 </section>
 <section id="explore-change-points---high-pim-low-pim" class="level2">
 <h2 class="anchored" data-anchor-id="explore-change-points---high-pim-low-pim">Explore change points - high PIM =&gt; low PIM</h2>
@@ -451,67 +468,84 @@ $ PIM      &lt;dbl&gt; 48, 25, 3, 129, 618, 1729, 822, 369, 272, 165, 216, 50, 1
 <section id="go-back-to-original-data-object-1" class="level3">
 <h3 class="anchored" data-anchor-id="go-back-to-original-data-object-1">Go back to original data object</h3>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>D <span class="ot">=</span> D_backup</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>D <span class="ot">=</span> D_backup</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="find-time-points-where-value-transitions-1" class="level3">
 <h3 class="anchored" data-anchor-id="find-time-points-where-value-transitions-1">Find time points where value transitions</h3>
 <p>I am using an improvised change point detection algorithm.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>PIM_change_detection <span class="ot">=</span> <span class="cf">function</span>(x){</span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># x = sequence</span></span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  change <span class="ot">=</span> <span class="cn">FALSE</span></span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  N <span class="ot">=</span> <span class="fu">length</span>(x)</span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># ignore incomplete time series at start and end</span></span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (N <span class="sc">&lt;</span> <span class="dv">60</span>) <span class="fu">return</span>(change)</span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>  midpoint <span class="ot">=</span> <span class="fu">ceiling</span>(N<span class="sc">/</span><span class="dv">2</span>)</span>
-<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>  mn_before <span class="ot">=</span> <span class="fu">mean</span>(x[<span class="dv">1</span><span class="sc">:</span>midpoint])</span>
-<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>  sd_after <span class="ot">=</span> <span class="fu">sd</span>(x[(midpoint <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span>N])</span>
-<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>  max_after <span class="ot">=</span> <span class="fu">max</span>(x[(midpoint <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span>N])</span>
-<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>  mn_after <span class="ot">=</span> <span class="fu">mean</span>(x[(midpoint <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span>N])</span>
-<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># heuristic logic to identify changes from inactive to active</span></span>
-<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (mn_before <span class="sc">&gt;</span> mn_after <span class="sc">*</span> <span class="dv">10</span> <span class="sc">&amp;&amp;</span> </span>
-<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>      mn_after <span class="sc">&lt;</span> <span class="dv">2000</span> <span class="sc">&amp;&amp;</span></span>
-<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>      sd_after <span class="sc">&lt;</span> <span class="dv">100</span> <span class="sc">&amp;&amp;</span></span>
-<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>      max_after <span class="sc">&lt;</span> <span class="dv">100</span> <span class="sc">&amp;&amp;</span></span>
-<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>      mn_before <span class="sc">&gt;</span> <span class="dv">500</span>) { </span>
-<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># use t-test to test for actual difference (note: maybe redundant)</span></span>
-<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a>    tt <span class="ot">=</span> <span class="fu">t.test</span>(x[<span class="dv">1</span><span class="sc">:</span>midpoint], x[(midpoint <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span>N])</span>
-<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (tt<span class="sc">$</span>p.value <span class="sc">&lt;</span> <span class="fl">0.01</span>) { <span class="co"># t-test significant</span></span>
-<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a>      change <span class="ot">=</span> <span class="cn">TRUE</span></span>
-<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb23-23"><a href="#cb23-23" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb23-24"><a href="#cb23-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(change) <span class="co"># boolean: true = change, false = no change</span></span>
-<span id="cb23-25"><a href="#cb23-25" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb23-26"><a href="#cb23-26" aria-hidden="true" tabindex="-1"></a>epoch_size <span class="ot">=</span> <span class="dv">10</span></span>
-<span id="cb23-27"><a href="#cb23-27" aria-hidden="true" tabindex="-1"></a>half_window_size <span class="ot">=</span> (<span class="dv">60</span> <span class="sc">/</span> epoch_size) <span class="sc">*</span> <span class="dv">5</span> <span class="co"># 5 minutes</span></span>
-<span id="cb23-28"><a href="#cb23-28" aria-hidden="true" tabindex="-1"></a>D<span class="sc">$</span>change_points <span class="ot">=</span> <span class="dv">0</span></span>
-<span id="cb23-29"><a href="#cb23-29" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (id <span class="cf">in</span> <span class="fu">unique</span>(D<span class="sc">$</span>Id)) {</span>
-<span id="cb23-30"><a href="#cb23-30" aria-hidden="true" tabindex="-1"></a>  id_segment <span class="ot">=</span> <span class="fu">which</span>(D<span class="sc">$</span>Id <span class="sc">==</span> id)</span>
-<span id="cb23-31"><a href="#cb23-31" aria-hidden="true" tabindex="-1"></a>  D<span class="sc">$</span>change_points[id_segment] <span class="ot">=</span> slider<span class="sc">::</span><span class="fu">slide_dbl</span>(<span class="at">.x =</span> D<span class="sc">$</span>PIM[id_segment],</span>
-<span id="cb23-32"><a href="#cb23-32" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">.f =</span> <span class="sc">~</span><span class="fu">PIM_change_detection</span>(.x),</span>
-<span id="cb23-33"><a href="#cb23-33" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">.before =</span> half_window_size,</span>
-<span id="cb23-34"><a href="#cb23-34" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">.after =</span> half_window_size,</span>
-<span id="cb23-35"><a href="#cb23-35" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">.complete =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb23-36"><a href="#cb23-36" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>PIM_change_detection <span class="ot">=</span> <span class="cf">function</span>(x){</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># x = sequence</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  change <span class="ot">=</span> <span class="cn">FALSE</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  N <span class="ot">=</span> <span class="fu">length</span>(x)</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># ignore incomplete time series at start and end</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (N <span class="sc">&lt;</span> <span class="dv">60</span>) <span class="fu">return</span>(change)</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>  midpoint <span class="ot">=</span> <span class="fu">ceiling</span>(N<span class="sc">/</span><span class="dv">2</span>)</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>  mn_before <span class="ot">=</span> <span class="fu">mean</span>(x[<span class="dv">1</span><span class="sc">:</span>midpoint])</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>  sd_after <span class="ot">=</span> <span class="fu">sd</span>(x[(midpoint <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span>N])</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>  max_after <span class="ot">=</span> <span class="fu">max</span>(x[(midpoint <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span>N])</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>  mn_after <span class="ot">=</span> <span class="fu">mean</span>(x[(midpoint <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span>N])</span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># heuristic logic to identify changes from inactive to active</span></span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (mn_before <span class="sc">&gt;</span> mn_after <span class="sc">*</span> <span class="dv">10</span> <span class="sc">&amp;&amp;</span> </span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>      mn_after <span class="sc">&lt;</span> <span class="dv">2000</span> <span class="sc">&amp;&amp;</span></span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>      sd_after <span class="sc">&lt;</span> <span class="dv">100</span> <span class="sc">&amp;&amp;</span></span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a>      max_after <span class="sc">&lt;</span> <span class="dv">100</span> <span class="sc">&amp;&amp;</span></span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a>      mn_before <span class="sc">&gt;</span> <span class="dv">500</span>) { </span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># use t-test to test for actual difference (note: maybe redundant)</span></span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a>    tt <span class="ot">=</span> <span class="fu">t.test</span>(x[<span class="dv">1</span><span class="sc">:</span>midpoint], x[(midpoint <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span>N])</span>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (tt<span class="sc">$</span>p.value <span class="sc">&lt;</span> <span class="fl">0.01</span>) { <span class="co"># t-test significant</span></span>
+<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a>      change <span class="ot">=</span> <span class="cn">TRUE</span></span>
+<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb24-24"><a href="#cb24-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(change) <span class="co"># boolean: true = change, false = no change</span></span>
+<span id="cb24-25"><a href="#cb24-25" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb24-26"><a href="#cb24-26" aria-hidden="true" tabindex="-1"></a>epoch_size <span class="ot">=</span> <span class="dv">10</span></span>
+<span id="cb24-27"><a href="#cb24-27" aria-hidden="true" tabindex="-1"></a>half_window_size <span class="ot">=</span> (<span class="dv">60</span> <span class="sc">/</span> epoch_size) <span class="sc">*</span> <span class="dv">5</span> <span class="co"># 5 minutes</span></span>
+<span id="cb24-28"><a href="#cb24-28" aria-hidden="true" tabindex="-1"></a>D<span class="sc">$</span>change_points <span class="ot">=</span> <span class="dv">0</span></span>
+<span id="cb24-29"><a href="#cb24-29" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (id <span class="cf">in</span> <span class="fu">unique</span>(D<span class="sc">$</span>Id)) {</span>
+<span id="cb24-30"><a href="#cb24-30" aria-hidden="true" tabindex="-1"></a>  id_segment <span class="ot">=</span> <span class="fu">which</span>(D<span class="sc">$</span>Id <span class="sc">==</span> id)</span>
+<span id="cb24-31"><a href="#cb24-31" aria-hidden="true" tabindex="-1"></a>  D<span class="sc">$</span>change_points[id_segment] <span class="ot">=</span> slider<span class="sc">::</span><span class="fu">slide_dbl</span>(<span class="at">.x =</span> D<span class="sc">$</span>PIM[id_segment],</span>
+<span id="cb24-32"><a href="#cb24-32" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">.f =</span> <span class="sc">~</span><span class="fu">PIM_change_detection</span>(.x),</span>
+<span id="cb24-33"><a href="#cb24-33" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">.before =</span> half_window_size,</span>
+<span id="cb24-34"><a href="#cb24-34" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">.after =</span> half_window_size,</span>
+<span id="cb24-35"><a href="#cb24-35" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">.complete =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb24-36"><a href="#cb24-36" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>However, this results in sequences of change points as multiple time points may meet the change point criteria. For convenience select middle point of such sequence.</p>
 </section>
 <section id="repeat-same-processing-steps-as-before" class="level3">
 <h3 class="anchored" data-anchor-id="repeat-same-processing-steps-as-before">Repeat same processing steps as before</h3>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>D <span class="ot">=</span> <span class="fu">find_middle</span>(D)</span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>output <span class="ot">=</span> <span class="fu">create_tibble</span>(D, half_window_size, epochsize)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>D <span class="ot">=</span> <span class="fu">find_middle</span>(D)</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>output <span class="ot">=</span> <span class="fu">create_tibble</span>(D, half_window_size, epochsize)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="plot-1" class="level3">
 <h3 class="anchored" data-anchor-id="plot-1">Plot</h3>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_changepoint_ts</span>(output, <span class="st">"high PIM =&gt; low PIM"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_changepoint_ts</span>(output, <span class="st">"high PIM =&gt; low PIM"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="exploration2b_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="exploration2b_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="plot-only-average-line-per-id-1" class="level3">
+<h3 class="anchored" data-anchor-id="plot-only-average-line-per-id-1">Plot only average line per Id</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>output2 <span class="ot">=</span> <span class="fu">aggregate</span>(output[, <span class="fu">c</span>(<span class="st">"time"</span>, <span class="st">"MEDI"</span>, <span class="st">"PIM"</span>, <span class="st">"changepoint"</span>)],</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>                    <span class="at">by =</span> <span class="fu">list</span>(output<span class="sc">$</span>time, output<span class="sc">$</span>Id), <span class="at">FUN =</span> mean)</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>output2 <span class="ot">=</span> output2[, <span class="sc">-</span><span class="fu">which</span>(<span class="fu">names</span>(output2) <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Group.1"</span>))]</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(output2)[<span class="dv">1</span>] <span class="ot">=</span> <span class="st">"Id"</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_changepoint_ts</span>(output2, <span class="st">"high PIM =&gt; low PIM"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="exploration2b_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -524,67 +558,84 @@ $ PIM      &lt;dbl&gt; 48, 25, 3, 129, 618, 1729, 822, 369, 272, 165, 216, 50, 1
 <section id="go-back-to-original-data-object-2" class="level3">
 <h3 class="anchored" data-anchor-id="go-back-to-original-data-object-2">Go back to original data object</h3>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>D <span class="ot">=</span> D_backup</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>D <span class="ot">=</span> D_backup</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="find-time-points-where-value-transitions-2" class="level3">
 <h3 class="anchored" data-anchor-id="find-time-points-where-value-transitions-2">Find time points where value transitions</h3>
 <p>I am using an improvised change point detection algorithm.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>MEDI_change_detection <span class="ot">=</span> <span class="cf">function</span>(x){</span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># x = sequence</span></span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  change <span class="ot">=</span> <span class="cn">FALSE</span></span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  N <span class="ot">=</span> <span class="fu">length</span>(x)</span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># ignore incomplete time series at start and end</span></span>
-<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (N <span class="sc">&lt;</span> <span class="dv">60</span>) <span class="fu">return</span>(change)</span>
-<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>  midpoint <span class="ot">=</span> <span class="fu">ceiling</span>(N<span class="sc">/</span><span class="dv">2</span>)</span>
-<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>  mn_before <span class="ot">=</span> <span class="fu">mean</span>(x[<span class="dv">1</span><span class="sc">:</span>midpoint])</span>
-<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>  sd_before <span class="ot">=</span> <span class="fu">sd</span>(x[<span class="dv">1</span><span class="sc">:</span>midpoint])</span>
-<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>  max_before <span class="ot">=</span> <span class="fu">max</span>(x[<span class="dv">1</span><span class="sc">:</span>midpoint])</span>
-<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>  mn_after <span class="ot">=</span> <span class="fu">mean</span>(x[(midpoint <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span>N])</span>
-<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># heuristic logic to identify changes from inactive to active</span></span>
-<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (mn_after <span class="sc">&gt;</span> mn_before <span class="sc">*</span> <span class="dv">10</span> <span class="sc">&amp;&amp;</span> </span>
-<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>      mn_before <span class="sc">&lt;</span> <span class="dv">1000</span> <span class="sc">&amp;&amp;</span></span>
-<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>      sd_before <span class="sc">&lt;</span> <span class="dv">200</span> <span class="sc">&amp;&amp;</span></span>
-<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a>      max_before <span class="sc">&lt;</span> <span class="dv">200</span> <span class="sc">&amp;&amp;</span></span>
-<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>      mn_after <span class="sc">&gt;</span> <span class="dv">1000</span>) { </span>
-<span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># use t-test to test for actual difference (note: maybe redundant)</span></span>
-<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a>    tt <span class="ot">=</span> <span class="fu">t.test</span>(x[<span class="dv">1</span><span class="sc">:</span>midpoint], x[(midpoint <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span>N])</span>
-<span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (tt<span class="sc">$</span>p.value <span class="sc">&lt;</span> <span class="fl">0.01</span>) { <span class="co"># t-test significant</span></span>
-<span id="cb27-21"><a href="#cb27-21" aria-hidden="true" tabindex="-1"></a>      change <span class="ot">=</span> <span class="cn">TRUE</span></span>
-<span id="cb27-22"><a href="#cb27-22" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb27-23"><a href="#cb27-23" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb27-24"><a href="#cb27-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(change) <span class="co"># boolean: true = change, false = no change</span></span>
-<span id="cb27-25"><a href="#cb27-25" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb27-26"><a href="#cb27-26" aria-hidden="true" tabindex="-1"></a>epoch_size <span class="ot">=</span> <span class="dv">10</span></span>
-<span id="cb27-27"><a href="#cb27-27" aria-hidden="true" tabindex="-1"></a>half_window_size <span class="ot">=</span> (<span class="dv">60</span> <span class="sc">/</span> epoch_size) <span class="sc">*</span> <span class="dv">5</span> <span class="co"># 5 minutes</span></span>
-<span id="cb27-28"><a href="#cb27-28" aria-hidden="true" tabindex="-1"></a>D<span class="sc">$</span>change_points <span class="ot">=</span> <span class="dv">0</span></span>
-<span id="cb27-29"><a href="#cb27-29" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (id <span class="cf">in</span> <span class="fu">unique</span>(D<span class="sc">$</span>Id)) {</span>
-<span id="cb27-30"><a href="#cb27-30" aria-hidden="true" tabindex="-1"></a>  id_segment <span class="ot">=</span> <span class="fu">which</span>(D<span class="sc">$</span>Id <span class="sc">==</span> id)</span>
-<span id="cb27-31"><a href="#cb27-31" aria-hidden="true" tabindex="-1"></a>  D<span class="sc">$</span>change_points[id_segment] <span class="ot">=</span> slider<span class="sc">::</span><span class="fu">slide_dbl</span>(<span class="at">.x =</span> D<span class="sc">$</span>MEDI[id_segment],</span>
-<span id="cb27-32"><a href="#cb27-32" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">.f =</span> <span class="sc">~</span><span class="fu">MEDI_change_detection</span>(.x),</span>
-<span id="cb27-33"><a href="#cb27-33" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">.before =</span> half_window_size,</span>
-<span id="cb27-34"><a href="#cb27-34" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">.after =</span> half_window_size,</span>
-<span id="cb27-35"><a href="#cb27-35" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">.complete =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb27-36"><a href="#cb27-36" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>MEDI_change_detection <span class="ot">=</span> <span class="cf">function</span>(x){</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># x = sequence</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  change <span class="ot">=</span> <span class="cn">FALSE</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  N <span class="ot">=</span> <span class="fu">length</span>(x)</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># ignore incomplete time series at start and end</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (N <span class="sc">&lt;</span> <span class="dv">60</span>) <span class="fu">return</span>(change)</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>  midpoint <span class="ot">=</span> <span class="fu">ceiling</span>(N<span class="sc">/</span><span class="dv">2</span>)</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>  mn_before <span class="ot">=</span> <span class="fu">mean</span>(x[<span class="dv">1</span><span class="sc">:</span>midpoint])</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>  sd_before <span class="ot">=</span> <span class="fu">sd</span>(x[<span class="dv">1</span><span class="sc">:</span>midpoint])</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>  max_before <span class="ot">=</span> <span class="fu">max</span>(x[<span class="dv">1</span><span class="sc">:</span>midpoint])</span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>  mn_after <span class="ot">=</span> <span class="fu">mean</span>(x[(midpoint <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span>N])</span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># heuristic logic to identify changes from inactive to active</span></span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (mn_after <span class="sc">&gt;</span> mn_before <span class="sc">*</span> <span class="dv">10</span> <span class="sc">&amp;&amp;</span> </span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>      mn_before <span class="sc">&lt;</span> <span class="dv">1000</span> <span class="sc">&amp;&amp;</span></span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>      sd_before <span class="sc">&lt;</span> <span class="dv">200</span> <span class="sc">&amp;&amp;</span></span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>      max_before <span class="sc">&lt;</span> <span class="dv">200</span> <span class="sc">&amp;&amp;</span></span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>      mn_after <span class="sc">&gt;</span> <span class="dv">1000</span>) { </span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># use t-test to test for actual difference (note: maybe redundant)</span></span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>    tt <span class="ot">=</span> <span class="fu">t.test</span>(x[<span class="dv">1</span><span class="sc">:</span>midpoint], x[(midpoint <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span>N])</span>
+<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (tt<span class="sc">$</span>p.value <span class="sc">&lt;</span> <span class="fl">0.01</span>) { <span class="co"># t-test significant</span></span>
+<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a>      change <span class="ot">=</span> <span class="cn">TRUE</span></span>
+<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb29-23"><a href="#cb29-23" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb29-24"><a href="#cb29-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(change) <span class="co"># boolean: true = change, false = no change</span></span>
+<span id="cb29-25"><a href="#cb29-25" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb29-26"><a href="#cb29-26" aria-hidden="true" tabindex="-1"></a>epoch_size <span class="ot">=</span> <span class="dv">10</span></span>
+<span id="cb29-27"><a href="#cb29-27" aria-hidden="true" tabindex="-1"></a>half_window_size <span class="ot">=</span> (<span class="dv">60</span> <span class="sc">/</span> epoch_size) <span class="sc">*</span> <span class="dv">5</span> <span class="co"># 5 minutes</span></span>
+<span id="cb29-28"><a href="#cb29-28" aria-hidden="true" tabindex="-1"></a>D<span class="sc">$</span>change_points <span class="ot">=</span> <span class="dv">0</span></span>
+<span id="cb29-29"><a href="#cb29-29" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (id <span class="cf">in</span> <span class="fu">unique</span>(D<span class="sc">$</span>Id)) {</span>
+<span id="cb29-30"><a href="#cb29-30" aria-hidden="true" tabindex="-1"></a>  id_segment <span class="ot">=</span> <span class="fu">which</span>(D<span class="sc">$</span>Id <span class="sc">==</span> id)</span>
+<span id="cb29-31"><a href="#cb29-31" aria-hidden="true" tabindex="-1"></a>  D<span class="sc">$</span>change_points[id_segment] <span class="ot">=</span> slider<span class="sc">::</span><span class="fu">slide_dbl</span>(<span class="at">.x =</span> D<span class="sc">$</span>MEDI[id_segment],</span>
+<span id="cb29-32"><a href="#cb29-32" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">.f =</span> <span class="sc">~</span><span class="fu">MEDI_change_detection</span>(.x),</span>
+<span id="cb29-33"><a href="#cb29-33" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">.before =</span> half_window_size,</span>
+<span id="cb29-34"><a href="#cb29-34" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">.after =</span> half_window_size,</span>
+<span id="cb29-35"><a href="#cb29-35" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">.complete =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb29-36"><a href="#cb29-36" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>However, this results in sequences of change points as multiple time points may meet the change point criteria. For convenience select middle point of such sequence.</p>
 </section>
 <section id="repeat-same-processing-steps-as-before-1" class="level3">
 <h3 class="anchored" data-anchor-id="repeat-same-processing-steps-as-before-1">Repeat same processing steps as before</h3>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>D <span class="ot">=</span> <span class="fu">find_middle</span>(D)</span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>output <span class="ot">=</span> <span class="fu">create_tibble</span>(D, half_window_size, epochsize)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>D <span class="ot">=</span> <span class="fu">find_middle</span>(D)</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>output <span class="ot">=</span> <span class="fu">create_tibble</span>(D, half_window_size, epochsize)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="plot-2" class="level3">
 <h3 class="anchored" data-anchor-id="plot-2">Plot</h3>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_changepoint_ts</span>(output, <span class="st">"low MEDI =&gt; high MEDI"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_changepoint_ts</span>(output, <span class="st">"low MEDI =&gt; high MEDI"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="exploration2b_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="exploration2b_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="plot-only-average-line-per-id-2" class="level3">
+<h3 class="anchored" data-anchor-id="plot-only-average-line-per-id-2">Plot only average line per Id</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>output2 <span class="ot">=</span> <span class="fu">aggregate</span>(output[, <span class="fu">c</span>(<span class="st">"time"</span>, <span class="st">"MEDI"</span>, <span class="st">"PIM"</span>, <span class="st">"changepoint"</span>)],</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>                    <span class="at">by =</span> <span class="fu">list</span>(output<span class="sc">$</span>time, output<span class="sc">$</span>Id), <span class="at">FUN =</span> mean)</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>output2 <span class="ot">=</span> output2[, <span class="sc">-</span><span class="fu">which</span>(<span class="fu">names</span>(output2) <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Group.1"</span>))]</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(output2)[<span class="dv">1</span>] <span class="ot">=</span> <span class="st">"Id"</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_changepoint_ts</span>(output2, <span class="st">"low MEDI =&gt; high MEDI"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="exploration2b_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -597,66 +648,83 @@ $ PIM      &lt;dbl&gt; 48, 25, 3, 129, 618, 1729, 822, 369, 272, 165, 216, 50, 1
 <section id="go-back-to-original-data-object-3" class="level3">
 <h3 class="anchored" data-anchor-id="go-back-to-original-data-object-3">Go back to original data object</h3>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>D <span class="ot">=</span> D_backup</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>D <span class="ot">=</span> D_backup</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="find-time-points-where-value-transitions-3" class="level3">
 <h3 class="anchored" data-anchor-id="find-time-points-where-value-transitions-3">Find time points where value transitions</h3>
 <p>I am using an improvised change point detection algorithm.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>MEDI_change_detection <span class="ot">=</span> <span class="cf">function</span>(x){</span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># x = sequence</span></span>
-<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  change <span class="ot">=</span> <span class="cn">FALSE</span></span>
-<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  N <span class="ot">=</span> <span class="fu">length</span>(x)</span>
-<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># ignore incomplete time series at start and end</span></span>
-<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (N <span class="sc">&lt;</span> <span class="dv">60</span>) <span class="fu">return</span>(change)</span>
-<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>  midpoint <span class="ot">=</span> <span class="fu">ceiling</span>(N<span class="sc">/</span><span class="dv">2</span>)</span>
-<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>  mn_before <span class="ot">=</span> <span class="fu">mean</span>(x[<span class="dv">1</span><span class="sc">:</span>midpoint])</span>
-<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>  sd_after <span class="ot">=</span> <span class="fu">sd</span>(x[(midpoint <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span>N])</span>
-<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>  max_after <span class="ot">=</span> <span class="fu">max</span>(x[(midpoint <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span>N])</span>
-<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>  mn_after <span class="ot">=</span> <span class="fu">mean</span>(x[(midpoint <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span>N])</span>
-<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># heuristic logic to identify changes from inactive to active</span></span>
-<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (mn_before <span class="sc">&gt;</span> mn_after <span class="sc">*</span> <span class="dv">10</span> <span class="sc">&amp;&amp;</span> </span>
-<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a>      mn_after <span class="sc">&lt;</span> <span class="dv">1000</span> <span class="sc">&amp;&amp;</span></span>
-<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a>      sd_after <span class="sc">&lt;</span> <span class="dv">200</span> <span class="sc">&amp;&amp;</span></span>
-<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a>      max_after <span class="sc">&lt;</span> <span class="dv">200</span> <span class="sc">&amp;&amp;</span></span>
-<span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a>      mn_before <span class="sc">&gt;</span> <span class="dv">1000</span>) { </span>
-<span id="cb31-18"><a href="#cb31-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># use t-test to test for actual difference (note: maybe redundant)</span></span>
-<span id="cb31-19"><a href="#cb31-19" aria-hidden="true" tabindex="-1"></a>    tt <span class="ot">=</span> <span class="fu">t.test</span>(x[<span class="dv">1</span><span class="sc">:</span>midpoint], x[(midpoint <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span>N])</span>
-<span id="cb31-20"><a href="#cb31-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (tt<span class="sc">$</span>p.value <span class="sc">&lt;</span> <span class="fl">0.01</span>) { <span class="co"># t-test significant</span></span>
-<span id="cb31-21"><a href="#cb31-21" aria-hidden="true" tabindex="-1"></a>      change <span class="ot">=</span> <span class="cn">TRUE</span></span>
-<span id="cb31-22"><a href="#cb31-22" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb31-23"><a href="#cb31-23" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb31-24"><a href="#cb31-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(change) <span class="co"># boolean: true = change, false = no change</span></span>
-<span id="cb31-25"><a href="#cb31-25" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb31-26"><a href="#cb31-26" aria-hidden="true" tabindex="-1"></a>epoch_size <span class="ot">=</span> <span class="dv">10</span></span>
-<span id="cb31-27"><a href="#cb31-27" aria-hidden="true" tabindex="-1"></a>half_window_size <span class="ot">=</span> (<span class="dv">60</span> <span class="sc">/</span> epoch_size) <span class="sc">*</span> <span class="dv">5</span> <span class="co"># 5 minutes</span></span>
-<span id="cb31-28"><a href="#cb31-28" aria-hidden="true" tabindex="-1"></a>D<span class="sc">$</span>change_points <span class="ot">=</span> <span class="dv">0</span></span>
-<span id="cb31-29"><a href="#cb31-29" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (id <span class="cf">in</span> <span class="fu">unique</span>(D<span class="sc">$</span>Id)) {</span>
-<span id="cb31-30"><a href="#cb31-30" aria-hidden="true" tabindex="-1"></a>  id_segment <span class="ot">=</span> <span class="fu">which</span>(D<span class="sc">$</span>Id <span class="sc">==</span> id)</span>
-<span id="cb31-31"><a href="#cb31-31" aria-hidden="true" tabindex="-1"></a>  D<span class="sc">$</span>change_points[id_segment] <span class="ot">=</span> slider<span class="sc">::</span><span class="fu">slide_dbl</span>(<span class="at">.x =</span> D<span class="sc">$</span>MEDI[id_segment],</span>
-<span id="cb31-32"><a href="#cb31-32" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">.f =</span> <span class="sc">~</span><span class="fu">MEDI_change_detection</span>(.x),</span>
-<span id="cb31-33"><a href="#cb31-33" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">.before =</span> half_window_size,</span>
-<span id="cb31-34"><a href="#cb31-34" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">.after =</span> half_window_size,</span>
-<span id="cb31-35"><a href="#cb31-35" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">.complete =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb31-36"><a href="#cb31-36" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>MEDI_change_detection <span class="ot">=</span> <span class="cf">function</span>(x){</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># x = sequence</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  change <span class="ot">=</span> <span class="cn">FALSE</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>  N <span class="ot">=</span> <span class="fu">length</span>(x)</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># ignore incomplete time series at start and end</span></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (N <span class="sc">&lt;</span> <span class="dv">60</span>) <span class="fu">return</span>(change)</span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>  midpoint <span class="ot">=</span> <span class="fu">ceiling</span>(N<span class="sc">/</span><span class="dv">2</span>)</span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>  mn_before <span class="ot">=</span> <span class="fu">mean</span>(x[<span class="dv">1</span><span class="sc">:</span>midpoint])</span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>  sd_after <span class="ot">=</span> <span class="fu">sd</span>(x[(midpoint <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span>N])</span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>  max_after <span class="ot">=</span> <span class="fu">max</span>(x[(midpoint <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span>N])</span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>  mn_after <span class="ot">=</span> <span class="fu">mean</span>(x[(midpoint <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span>N])</span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># heuristic logic to identify changes from inactive to active</span></span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (mn_before <span class="sc">&gt;</span> mn_after <span class="sc">*</span> <span class="dv">10</span> <span class="sc">&amp;&amp;</span> </span>
+<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a>      mn_after <span class="sc">&lt;</span> <span class="dv">1000</span> <span class="sc">&amp;&amp;</span></span>
+<span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a>      sd_after <span class="sc">&lt;</span> <span class="dv">200</span> <span class="sc">&amp;&amp;</span></span>
+<span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a>      max_after <span class="sc">&lt;</span> <span class="dv">200</span> <span class="sc">&amp;&amp;</span></span>
+<span id="cb34-17"><a href="#cb34-17" aria-hidden="true" tabindex="-1"></a>      mn_before <span class="sc">&gt;</span> <span class="dv">1000</span>) { </span>
+<span id="cb34-18"><a href="#cb34-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># use t-test to test for actual difference (note: maybe redundant)</span></span>
+<span id="cb34-19"><a href="#cb34-19" aria-hidden="true" tabindex="-1"></a>    tt <span class="ot">=</span> <span class="fu">t.test</span>(x[<span class="dv">1</span><span class="sc">:</span>midpoint], x[(midpoint <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span>N])</span>
+<span id="cb34-20"><a href="#cb34-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (tt<span class="sc">$</span>p.value <span class="sc">&lt;</span> <span class="fl">0.01</span>) { <span class="co"># t-test significant</span></span>
+<span id="cb34-21"><a href="#cb34-21" aria-hidden="true" tabindex="-1"></a>      change <span class="ot">=</span> <span class="cn">TRUE</span></span>
+<span id="cb34-22"><a href="#cb34-22" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb34-23"><a href="#cb34-23" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb34-24"><a href="#cb34-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(change) <span class="co"># boolean: true = change, false = no change</span></span>
+<span id="cb34-25"><a href="#cb34-25" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb34-26"><a href="#cb34-26" aria-hidden="true" tabindex="-1"></a>epoch_size <span class="ot">=</span> <span class="dv">10</span></span>
+<span id="cb34-27"><a href="#cb34-27" aria-hidden="true" tabindex="-1"></a>half_window_size <span class="ot">=</span> (<span class="dv">60</span> <span class="sc">/</span> epoch_size) <span class="sc">*</span> <span class="dv">5</span> <span class="co"># 5 minutes</span></span>
+<span id="cb34-28"><a href="#cb34-28" aria-hidden="true" tabindex="-1"></a>D<span class="sc">$</span>change_points <span class="ot">=</span> <span class="dv">0</span></span>
+<span id="cb34-29"><a href="#cb34-29" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (id <span class="cf">in</span> <span class="fu">unique</span>(D<span class="sc">$</span>Id)) {</span>
+<span id="cb34-30"><a href="#cb34-30" aria-hidden="true" tabindex="-1"></a>  id_segment <span class="ot">=</span> <span class="fu">which</span>(D<span class="sc">$</span>Id <span class="sc">==</span> id)</span>
+<span id="cb34-31"><a href="#cb34-31" aria-hidden="true" tabindex="-1"></a>  D<span class="sc">$</span>change_points[id_segment] <span class="ot">=</span> slider<span class="sc">::</span><span class="fu">slide_dbl</span>(<span class="at">.x =</span> D<span class="sc">$</span>MEDI[id_segment],</span>
+<span id="cb34-32"><a href="#cb34-32" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">.f =</span> <span class="sc">~</span><span class="fu">MEDI_change_detection</span>(.x),</span>
+<span id="cb34-33"><a href="#cb34-33" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">.before =</span> half_window_size,</span>
+<span id="cb34-34"><a href="#cb34-34" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">.after =</span> half_window_size,</span>
+<span id="cb34-35"><a href="#cb34-35" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">.complete =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb34-36"><a href="#cb34-36" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="repeat-same-processing-steps-as-before-2" class="level3">
 <h3 class="anchored" data-anchor-id="repeat-same-processing-steps-as-before-2">Repeat same processing steps as before</h3>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>D <span class="ot">=</span> <span class="fu">find_middle</span>(D)</span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>output <span class="ot">=</span> <span class="fu">create_tibble</span>(D, half_window_size, epochsize)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>D <span class="ot">=</span> <span class="fu">find_middle</span>(D)</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>output <span class="ot">=</span> <span class="fu">create_tibble</span>(D, half_window_size, epochsize)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="plot-3" class="level3">
 <h3 class="anchored" data-anchor-id="plot-3">Plot</h3>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_changepoint_ts</span>(output, <span class="st">"high MEDI =&gt; low MEDI"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_changepoint_ts</span>(output, <span class="st">"high MEDI =&gt; low MEDI"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="exploration2b_files/figure-html/unnamed-chunk-25-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="exploration2b_files/figure-html/unnamed-chunk-28-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="plot-only-average-line-per-id-3" class="level3">
+<h3 class="anchored" data-anchor-id="plot-only-average-line-per-id-3">Plot only average line per Id</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>output2 <span class="ot">=</span> <span class="fu">aggregate</span>(output[, <span class="fu">c</span>(<span class="st">"time"</span>, <span class="st">"MEDI"</span>, <span class="st">"PIM"</span>, <span class="st">"changepoint"</span>)],</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>                    <span class="at">by =</span> <span class="fu">list</span>(output<span class="sc">$</span>time, output<span class="sc">$</span>Id), <span class="at">FUN =</span> mean)</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>output2 <span class="ot">=</span> output2[, <span class="sc">-</span><span class="fu">which</span>(<span class="fu">names</span>(output2) <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Group.1"</span>))]</span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(output2)[<span class="dv">1</span>] <span class="ot">=</span> <span class="st">"Id"</span></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_changepoint_ts</span>(output2, <span class="st">"high MEDI =&gt; low MEDI"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="exploration2b_files/figure-html/unnamed-chunk-29-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>

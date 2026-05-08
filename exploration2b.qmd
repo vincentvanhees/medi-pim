@@ -291,6 +291,17 @@ plot_changepoint_ts = function(output, title = "") {
 plot_changepoint_ts(output, "low PIM => high PIM")
 ```
 
+
+### Plot only average line per Id
+
+```{r}
+output2 = aggregate(output[, c("time", "MEDI", "PIM", "changepoint")],
+                    by = list(output$time, output$Id), FUN = mean)
+output2 = output2[, -which(names(output2) %in% c("Group.1"))]
+names(output2)[1] = "Id"
+plot_changepoint_ts(output2, "low PIM => high PIM")
+```
+
 ## Explore change points - high PIM => low PIM
 
 Now to the same as above, but from a MEDI perspective
@@ -357,6 +368,16 @@ output = create_tibble(D, half_window_size, epochsize)
 
 ```{r}
 plot_changepoint_ts(output, "high PIM => low PIM")
+```
+
+### Plot only average line per Id
+
+```{r}
+output2 = aggregate(output[, c("time", "MEDI", "PIM", "changepoint")],
+                    by = list(output$time, output$Id), FUN = mean)
+output2 = output2[, -which(names(output2) %in% c("Group.1"))]
+names(output2)[1] = "Id"
+plot_changepoint_ts(output2, "high PIM => low PIM")
 ```
 
 
@@ -428,6 +449,16 @@ output = create_tibble(D, half_window_size, epochsize)
 plot_changepoint_ts(output, "low MEDI => high MEDI")
 ```
 
+### Plot only average line per Id
+
+```{r}
+output2 = aggregate(output[, c("time", "MEDI", "PIM", "changepoint")],
+                    by = list(output$time, output$Id), FUN = mean)
+output2 = output2[, -which(names(output2) %in% c("Group.1"))]
+names(output2)[1] = "Id"
+plot_changepoint_ts(output2, "low MEDI => high MEDI")
+```
+
 ## Explore change points - high MEDI => low MEDI
 
 Now to the same as above, but from a MEDI perspective
@@ -494,6 +525,15 @@ output = create_tibble(D, half_window_size, epochsize)
 plot_changepoint_ts(output, "high MEDI => low MEDI")
 ```
 
+### Plot only average line per Id
+
+```{r}
+output2 = aggregate(output[, c("time", "MEDI", "PIM", "changepoint")],
+                    by = list(output$time, output$Id), FUN = mean)
+output2 = output2[, -which(names(output2) %in% c("Group.1"))]
+names(output2)[1] = "Id"
+plot_changepoint_ts(output2, "high MEDI => low MEDI")
+```
 
 ## Reflections
 
